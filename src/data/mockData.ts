@@ -111,12 +111,12 @@ export const feed = [
 ];
 
 export const analysisSteps = [
-  "Loading match footage…",
-  "Running player detection…",
-  "Tracking players and ball…",
-  "Analyzing possession…",
-  "Extracting build-up sequences…",
-  "Computing team shape & compactness…",
-  "Detecting transition phases…",
-  "Finalizing tactical report…",
+  "Video uploaded",
+  "Frame extraction complete",
+  "Player and ball detection complete",
+  "Multi-object tracking complete",
+  "Team classification complete",
+  "Jersey OCR complete",
+  "Possession engine complete",
+  "Tactical event extraction complete",
 ];

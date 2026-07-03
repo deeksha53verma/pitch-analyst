@@ -6,9 +6,10 @@ interface Props {
   onUpload: () => void;
   onDemo: () => void;
   onRun: () => void;
+  analyzed: boolean;
 }
 
-export function HeaderHero({ onUpload, onDemo, onRun }: Props) {
+export function HeaderHero({ onUpload, onDemo, onRun, analyzed }: Props) {
   return (
     <header className="relative overflow-hidden border-b border-border">
       <div className="absolute inset-0 pitch-bg opacity-[0.08]" aria-hidden />
@@ -41,15 +42,32 @@ export function HeaderHero({ onUpload, onDemo, onRun }: Props) {
               team compactness, positional tendencies, and transition events — all in one AI-powered workstation.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button size="lg" onClick={onUpload} className="gap-2">
-                <Upload className="h-4 w-4" /> Upload Video
-              </Button>
-              <Button size="lg" variant="secondary" onClick={onDemo} className="gap-2">
-                <Play className="h-4 w-4" /> Use Demo Match
-              </Button>
-              <Button size="lg" variant="outline" onClick={onRun} className="gap-2 border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
-                <Sparkles className="h-4 w-4" /> Run Analysis
-              </Button>
+              {!analyzed && (
+                <>
+                  <Button size="lg" onClick={onUpload} className="gap-2">
+                    <Upload className="h-4 w-4" /> Upload Video
+                  </Button>
+                  <Button size="lg" variant="secondary" onClick={onDemo} className="gap-2">
+                    <Play className="h-4 w-4" /> Use Demo Match
+                  </Button>
+                  <Button size="lg" variant="outline" onClick={onRun} className="gap-2 border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
+                    <Sparkles className="h-4 w-4" /> Run Analysis
+                  </Button>
+                </>
+              )}
+              {analyzed && (
+                <>
+                  <Button size="sm" variant="secondary" className="gap-2 text-xs">
+                    Download Annotated Video
+                  </Button>
+                  <Button size="sm" variant="secondary" className="gap-2 text-xs">
+                    Download Possession CSV
+                  </Button>
+                  <Button size="sm" variant="secondary" className="gap-2 text-xs">
+                    Download Tactical Report
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 

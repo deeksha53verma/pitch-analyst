@@ -65,6 +65,31 @@ export function PossessionTab() {
       </div>
 
       <div className="glass col-span-full rounded-2xl p-5">
+        <div className="mb-4 text-sm font-semibold">Possession Zones & Heatmap</div>
+        <div className="pitch-bg relative h-64 w-full overflow-hidden rounded-xl border border-border flex items-center justify-center">
+          {/* Mock Heatmap Blobs for Possession */}
+          <div className="absolute h-40 w-40 rounded-full bg-[color:var(--team-blue)] blur-3xl opacity-30 top-1/4 left-1/4" />
+          <div className="absolute h-48 w-48 rounded-full bg-[color:var(--team-blue)] blur-3xl opacity-40 bottom-1/4 left-1/3" />
+          <div className="absolute h-32 w-32 rounded-full bg-[color:var(--team-blue)] blur-3xl opacity-20 top-1/2 left-2/3" />
+          
+          <div className="absolute h-32 w-32 rounded-full bg-[color:var(--team-red)] blur-3xl opacity-30 bottom-1/4 right-1/4" />
+          <div className="absolute h-40 w-40 rounded-full bg-[color:var(--team-red)] blur-3xl opacity-20 top-1/3 right-1/3" />
+
+          {/* Pitch lines */}
+          <div className="absolute inset-0 pointer-events-none border-2 border-white/10 m-4 rounded-md flex">
+            <div className="w-1/3 border-r-2 border-white/10 relative flex items-center">
+              <div className="h-32 w-16 border-y-2 border-r-2 border-white/10 absolute left-0" />
+            </div>
+            <div className="w-1/3 border-r-2 border-white/10 relative" />
+            <div className="w-1/3 relative flex items-center justify-end">
+              <div className="h-32 w-16 border-y-2 border-l-2 border-white/10 absolute right-0" />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-24 w-24 rounded-full border-2 border-white/10" />
+          </div>
+        </div>
+      </div>
+
+      <div className="glass col-span-full rounded-2xl p-5">
         <div className="mb-3 text-sm font-semibold">Possession Events</div>
         <Table>
           <TableHeader>

@@ -1,5 +1,5 @@
 import { analysisSteps } from "@/data/mockData";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle2, Circle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Progress } from "@/components/ui/progress";
 
@@ -34,10 +34,16 @@ export function LoadingAnalysisState({ onDone }: { onDone: () => void }) {
           </div>
         </div>
         <Progress value={progress} className="mb-5 h-2" />
-        <ul className="space-y-2">
+        <ul className="space-y-3 mt-4">
           {analysisSteps.map((s, i) => (
-            <li key={s} className={`flex items-center gap-2 text-sm transition ${i < step ? "text-muted-foreground line-through" : i === step ? "text-primary" : "text-muted-foreground/50"}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${i <= step ? "bg-primary" : "bg-muted-foreground/30"}`} />
+            <li key={s} className={`flex items-center gap-3 text-sm transition ${i < step ? "text-foreground" : i === step ? "text-primary font-medium" : "text-muted-foreground/50"}`}>
+              {i < step ? (
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+              ) : i === step ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : (
+                <Circle className="h-4 w-4 text-muted-foreground/30" />
+              )}
               {s}
             </li>
           ))}

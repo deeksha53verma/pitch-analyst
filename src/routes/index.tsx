@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { HeaderHero } from "@/components/HeaderHero";
 import { VideoComparisonSection } from "@/components/VideoComparisonSection";
 import { SummaryMetrics } from "@/components/SummaryMetrics";
+import { CVMetricsRow } from "@/components/CVMetricsRow";
 import { TacticalTabs } from "@/components/TacticalTabs";
 import { EventFeed } from "@/components/EventFeed";
 import { LoadingAnalysisState } from "@/components/LoadingAnalysisState";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analyzed, setAnalyzed] = useState(true); // show dashboard with mock data by default
+  const [analyzed, setAnalyzed] = useState(false);
 
   const scrollToVideo = () => {
     document.getElementById("video-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -50,7 +51,7 @@ function Dashboard() {
 
   return (
     <main className="min-h-screen">
-      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} />
+      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} analyzed={analyzed} />
 
       <div id="video-section">
         <VideoComparisonSection fileName={fileName} onFile={setFileName} />
@@ -58,6 +59,7 @@ function Dashboard() {
 
       {analyzed && (
         <>
+          <CVMetricsRow />
           <SummaryMetrics />
           <section className="mx-auto mt-10 max-w-7xl px-6">
             <div className="grid gap-5 lg:grid-cols-[1fr_320px]">

@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +36,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -75,11 +71,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MatchMind — Football Tactical Intelligence" },
-      { name: "description", content: "AI-powered football match analysis dashboard: possession, build-up, compactness, player roles, transitions." },
-      { name: "theme-color", content: "#0f1720" },
+      { title: "Pitch Analyst" },
+      { name: "description", content: "Pitch Analyst App" },
+      { name: "author", content: "Developer" },
+      { property: "og:title", content: "Pitch Analyst" },
+      { property: "og:description", content: "Pitch Analyst App" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:site", content: "@PitchAnalyst" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
