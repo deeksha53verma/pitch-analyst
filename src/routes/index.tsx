@@ -1,24 +1,89 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { HeaderHero } from "@/components/HeaderHero";
+import { VideoComparisonSection } from "@/components/VideoComparisonSection";
+import { SummaryMetrics } from "@/components/SummaryMetrics";
+import { TacticalTabs } from "@/components/TacticalTabs";
+import { EventFeed } from "@/components/EventFeed";
+import { LoadingAnalysisState } from "@/components/LoadingAnalysisState";
+import { Toaster } from "@/components/ui/sonner";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: Dashboard,
+  head: () => ({
+    meta: [
+      { title: "MatchMind — Football Tactical Intelligence Dashboard" },
+      { name: "description", content: "AI-powered football match analysis: possession, build-up sequences, team compactness, player roles, and transition events." },
+      { property: "og:title", content: "MatchMind — Football Tactical Intelligence" },
+      { property: "og:description", content: "Upload a match clip and unlock tactical intelligence powered by computer vision." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Dashboard() {
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzed, setAnalyzed] = useState(true); // show dashboard with mock data by default
+
+  const scrollToVideo = () => {
+    document.getElementById("video-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleUpload = () => {
+    scrollToVideo();
+    toast("Choose a football clip in the Original Video panel.");
+  };
+
+  const handleDemo = () => {
+    setFileName("demo_match_liverpool_vs_arsenal.mp4");
+    scrollToVideo();
+    toast.success("Demo match loaded.");
+  };
+
+  const handleRun = () => {
+    if (!fileName) setFileName("demo_match_liverpool_vs_arsenal.mp4");
+    setAnalyzing(true);
+  };
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="min-h-screen">
+      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} />
+
+      <div id="video-section">
+        <VideoComparisonSection fileName={fileName} onFile={setFileName} />
+      </div>
+
+      {analyzed && (
+        <>
+          <SummaryMetrics />
+          <section className="mx-auto mt-10 max-w-7xl px-6">
+            <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+              <div><TacticalTabs /></div>
+              <div className="lg:sticky lg:top-6 lg:self-start">
+                <EventFeed />
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      <footer className="mx-auto mt-16 max-w-7xl px-6 py-8 text-center text-xs text-muted-foreground">
+        MatchMind · Football Tactical Intelligence · Hackathon Demo
+      </footer>
+
+      {analyzing && (
+        <LoadingAnalysisState
+          onDone={() => {
+            setAnalyzing(false);
+            setAnalyzed(true);
+            toast.success("Tactical analysis complete.");
+          }}
+        />
+      )}
+      <Toaster />
+    </main>
   );
 }
