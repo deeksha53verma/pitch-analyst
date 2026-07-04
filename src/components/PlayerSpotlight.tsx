@@ -1,8 +1,9 @@
 import { User, Activity, Map, ArrowRightLeft } from "lucide-react";
-import { players } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 
 export function PlayerSpotlight({ playerId = 10 }: { playerId?: number }) {
-  const player = players.find(p => p.num === playerId) || players[0];
+  const { data } = useAnalysis();
+  const player = data.players.find(p => p.num === playerId) || data.players[0];
   
   return (
     <div className="glass rounded-2xl p-5 flex flex-col h-full">

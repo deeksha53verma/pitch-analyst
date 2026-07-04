@@ -1,7 +1,8 @@
-import { feed } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { Radio } from "lucide-react";
 
 export function EventFeed() {
+  const { data } = useAnalysis();
   return (
     <aside className="glass rounded-2xl p-4">
       <div className="mb-3 flex items-center justify-between">
@@ -13,7 +14,7 @@ export function EventFeed() {
         </span>
       </div>
       <ol className="relative space-y-3 border-l border-border pl-4">
-        {feed.map((e, i) => (
+        {data.feed.map((e, i) => (
           <li key={i} className="relative">
             <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/20" />
             <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">{e.t}</div>

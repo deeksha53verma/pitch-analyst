@@ -1,4 +1,4 @@
-import { summaryMetrics } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { CircleDot, Route, Zap, User, Target } from "lucide-react";
 
 const iconMap = { "circle-dot": CircleDot, route: Route, zap: Zap, user: User, target: Target };
@@ -10,10 +10,11 @@ const toneMap: Record<string, string> = {
 };
 
 export function SummaryMetrics() {
+  const { data } = useAnalysis();
   return (
     <section className="mx-auto mt-10 max-w-7xl px-6">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-        {summaryMetrics.map((m) => {
+        {data.summaryMetrics.map((m) => {
           const Icon = iconMap[m.icon as keyof typeof iconMap];
           return (
             <div key={m.label} className="glass group rounded-2xl p-4 transition hover:-translate-y-0.5 hover:border-primary/40">

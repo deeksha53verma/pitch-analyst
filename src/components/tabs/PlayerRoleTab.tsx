@@ -1,13 +1,18 @@
 import { useState } from "react";
-import { players } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { PlayerSpotlight } from "../PlayerSpotlight";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function PlayerRoleTab() {
-  const [selectedPlayer, setSelectedPlayer] = useState(10);
-  const player = players.find(p => p.num === selectedPlayer) || players[0];
+  const { data } = useAnalysis();
+  const { players } = data;
+  const firstNum = players.length > 0 ? players[0].num : 0;
+  const [selectedPlayer, setSelectedPlayer] = useState(firstNum);
+
+  const currentPlayerNum = players.find(p => p.num === selectedPlayer) ? selectedPlayer : firstNum;
+  const player = players.find(p => p.num === currentPlayerNum) || players[0] || { num: 0, team: "", role: "", zone: "", touches: 0, avgPos: "0,0" };
   const isBlue = player.team.includes("Blue");
   const color = isBlue ? "var(--team-blue)" : "var(--team-red)";
 

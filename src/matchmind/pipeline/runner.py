@@ -44,6 +44,16 @@ class PipelineRunner:
         self.ball_px_ema = None
         self.ball_py_ema = None
         
+        # Reset tactical engines
+        pitch_cfg = {"thirds": {"defensive": 35.0, "middle": 70.0, "attacking": 105.0}, 
+                     "channels": {"left": 22.6, "center": 45.3, "right": 68.0}}
+        self.buildup = BuildUpEngine(pitch_cfg["thirds"])
+        self.compactness = CompactnessEngine()
+        self.positional = PositionalEngine(pitch_cfg)
+        self.counterattack = CounterattackEngine(speed_threshold=5.0)
+        self.state_engine = PossessionStateEngine()
+        self.predictive = PredictiveEngine()
+        
         logger.info(f"Initializing YOLO with best.pt weights...")
         weights_path = Path("runs/detect/runs/train/matchmind_yolo/weights/best.pt")
         
@@ -136,7 +146,7 @@ class PipelineRunner:
                         cx = (x1 + x2) / 2.0
                         
                         # Anchor players to their feet (y2), ball to center
-                        if class_id == 0:
+                        if class_id in [0, 1]:
                             cy = y2
                         else:
                             cy = (y1 + y2) / 2.0
@@ -145,7 +155,7 @@ class PipelineRunner:
                         px = (cx / width) * 105.0
                         py = (cy / height) * 68.0
                         
-                        if class_id == 0: # Player
+                        if class_id in [0, 1]: # Player or Goalkeeper
                             team_id = box_id % 2 
                             if team_id == 0:
                                 team_0_points.append([cx, cy])
@@ -156,7 +166,7 @@ class PipelineRunner:
                             players_pitch.append((px, py, team_id))
                             self.positional.update(box_id, team_id, px, py)
                             
-                        elif class_id == 1: # Ball
+                        elif class_id == 3: # Ball
                             if conf > best_ball_conf:
                                 best_ball_conf = conf
                                 best_ball = (px, py)
@@ -173,6 +183,17 @@ class PipelineRunner:
                             self.ball_py_ema = alpha * py + (1 - alpha) * self.ball_py_ema
                         
                         ball_pitch = (self.ball_px_ema, self.ball_py_ema)
+                    elif hasattr(self, 'ball_px_ema') and self.ball_px_ema is not None:
+                        ball_pitch = (self.ball_px_ema, self.ball_py_ema)
+                    else:
+                        # Fallback: estimate ball position as the centroid of players
+                        all_pts = team_0_points + team_1_points
+                        if len(all_pts) > 0:
+                            cx = sum(p[0] for p in all_pts) / len(all_pts)
+                            cy = sum(p[1] for p in all_pts) / len(all_pts)
+                            px = (cx / width) * 105.0
+                            py = (cy / height) * 68.0
+                            ball_pitch = (px, py)
                             
                 # Determine Possession for BuildUp
                 if ball_pitch:

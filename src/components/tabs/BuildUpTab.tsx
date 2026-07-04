@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { buildUps } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { ArrowRight, Users, PlayCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function BuildUpTab() {
-  const [selectedSequence, setSelectedSequence] = useState(buildUps[0].id);
+  const { data } = useAnalysis();
+  const { buildUps } = data;
+  const firstId = buildUps.length > 0 ? buildUps[0].id : "";
+  const [selectedSequence, setSelectedSequence] = useState(firstId);
 
-  const selected = buildUps.find(b => b.id === selectedSequence) || buildUps[0];
+  const currentSequenceId = buildUps.find(b => b.id === selectedSequence) ? selectedSequence : firstId;
+  const selected = buildUps.find(b => b.id === currentSequenceId) || buildUps[0] || { id: "", team: "", start: "", end: "", path: [], outcome: "", players: [] };
   const isBlue = selected.team.includes("Blue");
   const color = isBlue ? "oklch(0.68 0.19 245)" : "oklch(0.65 0.23 25)";
   const tailwindColor = isBlue ? "var(--team-blue)" : "var(--team-red)";

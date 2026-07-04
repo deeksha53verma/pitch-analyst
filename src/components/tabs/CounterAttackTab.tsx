@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { counterattacks } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { Zap, ArrowRight, PlayCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CounterAttackTab() {
-  const [selectedTransition, setSelectedTransition] = useState(counterattacks[0].id);
+  const { data } = useAnalysis();
+  const { counterattacks } = data;
+  const firstId = counterattacks.length > 0 ? counterattacks[0].id : "";
+  const [selectedTransition, setSelectedTransition] = useState(firstId);
 
-  const selected = counterattacks.find(c => c.id === selectedTransition) || counterattacks[0];
+  const currentTransitionId = counterattacks.find(c => c.id === selectedTransition) ? selectedTransition : firstId;
+  const selected = counterattacks.find(c => c.id === currentTransitionId) || counterattacks[0] || { id: "", team: "", start: "", end: "", path: [], outcome: "", players: [], lane: "", summary: "" };
   const isBlue = selected.team.includes("Blue");
   const color = isBlue ? "var(--team-blue)" : "var(--team-red)";
   const strokeColor = isBlue ? "oklch(0.68 0.19 245)" : "oklch(0.65 0.23 25)";

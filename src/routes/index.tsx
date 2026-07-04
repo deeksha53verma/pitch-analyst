@@ -24,10 +24,14 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+import { useAnalysis } from "@/hooks/useAnalysis";
+
 function Dashboard() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
+  
+  const { setData, resetData, setVideoUrls, selectedFile, setSelectedFile, setTimestamp } = useAnalysis();
 
   const scrollToVideo = () => {
     document.getElementById("video-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -39,22 +43,63 @@ function Dashboard() {
   };
 
   const handleDemo = () => {
+    resetData();
     setFileName("demo_match_liverpool_vs_arsenal.mp4");
+    setSelectedFile(null);
+    setAnalyzed(false);
     scrollToVideo();
     toast.success("Demo match loaded.");
   };
 
+  const handleFileSelect = (file: File) => {
+    resetData();
+    setSelectedFile(file);
+    setFileName(file.name);
+    setAnalyzed(false);
+    scrollToVideo();
+    toast.success(`Video file selected: ${file.name}`);
+  };
+
   const handleRun = () => {
-    if (!fileName) setFileName("demo_match_liverpool_vs_arsenal.mp4");
+    if (!selectedFile && !fileName) {
+      setFileName("demo_match_liverpool_vs_arsenal.mp4");
+    }
+    
     setAnalyzing(true);
+    
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2-minute timeout
+      
+      const apiPromise = fetch("http://localhost:8000/api/analyze", {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      }).then(async (res) => {
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error(`Server returned status: ${res.status}`);
+        return res.json();
+      }).catch((err) => {
+        clearTimeout(timeoutId);
+        if (err.name === "AbortError") {
+          throw new Error("Request timed out (2 minutes limit). Please try a shorter video.");
+        }
+        throw err;
+      });
+      
+      (window as any)._apiPromise = apiPromise;
+    }
   };
 
   return (
     <main className="min-h-screen">
-      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} analyzed={analyzed} />
+      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} analyzed={analyzed} analyzing={analyzing} />
 
       <div id="video-section">
-        <VideoComparisonSection fileName={fileName} onFile={setFileName} />
+        <VideoComparisonSection fileName={fileName} onFile={handleFileSelect} />
       </div>
 
       {analyzed && (
@@ -78,10 +123,31 @@ function Dashboard() {
 
       {analyzing && (
         <LoadingAnalysisState
-          onDone={() => {
-            setAnalyzing(false);
-            setAnalyzed(true);
-            toast.success("Tactical analysis complete.");
+          onDone={async () => {
+            if (selectedFile) {
+              try {
+                const toastId = toast.loading("Finalizing tactical analysis...");
+                const result = await (window as any)._apiPromise;
+                if (result && result.status === "success") {
+                  setData(result.data);
+                  setVideoUrls(result.videos);
+                  setTimestamp(Date.now());
+                  setAnalyzing(false);
+                  setAnalyzed(true);
+                  toast.success("Tactical analysis complete.", { id: toastId });
+                } else {
+                  throw new Error("Analysis failed");
+                }
+              } catch (err: any) {
+                console.error(err);
+                setAnalyzing(false);
+                toast.error(`Analysis failed: ${err.message}`);
+              }
+            } else {
+              setAnalyzing(false);
+              setAnalyzed(true);
+              toast.success("Demo match tactical analysis complete.");
+            }
           }}
         />
       )}

@@ -7,9 +7,10 @@ interface Props {
   onDemo: () => void;
   onRun: () => void;
   analyzed: boolean;
+  analyzing?: boolean;
 }
 
-export function HeaderHero({ onUpload, onDemo, onRun, analyzed }: Props) {
+export function HeaderHero({ onUpload, onDemo, onRun, analyzed, analyzing }: Props) {
   return (
     <header className="relative overflow-hidden border-b border-border">
       <div className="absolute inset-0 pitch-bg opacity-[0.08]" aria-hidden />
@@ -44,13 +45,13 @@ export function HeaderHero({ onUpload, onDemo, onRun, analyzed }: Props) {
             <div className="mt-8 flex flex-wrap gap-3">
               {!analyzed && (
                 <>
-                  <Button size="lg" onClick={onUpload} className="gap-2">
+                  <Button size="lg" onClick={onUpload} disabled={analyzing} className="gap-2">
                     <Upload className="h-4 w-4" /> Upload Video
                   </Button>
-                  <Button size="lg" variant="secondary" onClick={onDemo} className="gap-2">
+                  <Button size="lg" variant="secondary" onClick={onDemo} disabled={analyzing} className="gap-2">
                     <Play className="h-4 w-4" /> Use Demo Match
                   </Button>
-                  <Button size="lg" variant="outline" onClick={onRun} className="gap-2 border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
+                  <Button size="lg" variant="outline" onClick={onRun} disabled={analyzing} className="gap-2 border-primary/50 text-primary hover:bg-primary/10 hover:text-primary">
                     <Sparkles className="h-4 w-4" /> Run Analysis
                   </Button>
                 </>

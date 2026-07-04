@@ -1,13 +1,15 @@
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { Scan, Users, Aperture, RefreshCw, Route, Zap } from "lucide-react";
 
 export function CVMetricsRow() {
+  const { data } = useAnalysis();
   const metrics = [
-    { label: "Players Tracked", value: "22", sub: "99% confidence", icon: Users },
-    { label: "Jersey IDs", value: "18", sub: "Recognized", icon: Scan },
+    { label: "Players Tracked", value: `${data.players.length}`, sub: "99% confidence", icon: Users },
+    { label: "Jersey IDs", value: `${data.players.filter(p => p.num).length}`, sub: "Recognized", icon: Scan },
     { label: "Ball Tracking", value: "94%", sub: "Frames active", icon: Aperture },
-    { label: "Possession Changes", value: "31", sub: "Total", icon: RefreshCw },
-    { label: "Build-Ups", value: "14", sub: "Sequences", icon: Route },
-    { label: "Transitions", value: "6", sub: "Counterattacks", icon: Zap },
+    { label: "Possession Changes", value: `${data.possessionEvents.length}`, sub: "Total", icon: RefreshCw },
+    { label: "Build-Ups", value: `${data.buildUps.length}`, sub: "Sequences", icon: Route },
+    { label: "Transitions", value: `${data.counterattacks.length}`, sub: "Counterattacks", icon: Zap },
   ];
 
   return (

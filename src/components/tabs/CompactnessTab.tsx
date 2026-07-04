@@ -1,7 +1,7 @@
-import { compactness, compactnessSeries } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-function TeamCard({ team, data, color }: { team: string; data: typeof compactness.blue; color: string }) {
+function TeamCard({ team, data, color }: { team: string; data: { compactness: number; width: number; depth: number; spread: number }; color: string }) {
   const stats = [
     { label: "Compactness", value: data.compactness },
     { label: "Width", value: data.width },
@@ -59,6 +59,8 @@ function TeamCard({ team, data, color }: { team: string; data: typeof compactnes
 }
 
 export function CompactnessTab() {
+  const { data } = useAnalysis();
+  const { compactness, compactnessSeries } = data;
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <TeamCard team="Team Blue" data={compactness.blue} color="oklch(0.68 0.19 245)" />

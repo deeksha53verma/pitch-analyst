@@ -108,13 +108,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { AnalysisProvider } from "../hooks/useAnalysis";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AnalysisProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </AnalysisProvider>
     </QueryClientProvider>
   );
 }

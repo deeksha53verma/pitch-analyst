@@ -1,26 +1,33 @@
-import { possessionTimeline, possessionEvents } from "@/data/mockData";
+import { useAnalysis } from "@/hooks/useAnalysis";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
 export function PossessionTab() {
+  const { data } = useAnalysis();
+  const { teams, possessionTimeline, possessionEvents } = data;
+
+  const totalPossessionEvents = possessionEvents.length;
+  const blueTouches = possessionTimeline.reduce((acc, t) => acc + (t.blue > 0 ? 5 : 0), 0) + possessionEvents.filter(e => e.team.includes("Blue")).length * 3;
+  const redTouches = possessionTimeline.reduce((acc, t) => acc + (t.red > 0 ? 5 : 0), 0) + possessionEvents.filter(e => e.team.includes("Red")).length * 3;
+
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       <div className="glass rounded-2xl p-5">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Team Blue Possession</div>
-        <div className="mt-2 font-display text-4xl font-bold text-[color:var(--team-blue)]">58%</div>
+        <div className="mt-2 font-display text-4xl font-bold text-[color:var(--team-blue)]">{teams.blue.possession}%</div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-[color:var(--team-blue)]" style={{ width: "58%" }} />
+          <div className="h-full rounded-full bg-[color:var(--team-blue)]" style={{ width: `${teams.blue.possession}%` }} />
         </div>
-        <div className="mt-4 text-sm text-muted-foreground">18 possession changes · 214 touches</div>
+        <div className="mt-4 text-sm text-muted-foreground">{totalPossessionEvents} changes · {blueTouches} touches</div>
       </div>
       <div className="glass rounded-2xl p-5">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Team Red Possession</div>
-        <div className="mt-2 font-display text-4xl font-bold text-[color:var(--team-red)]">42%</div>
+        <div className="mt-2 font-display text-4xl font-bold text-[color:var(--team-red)]">{teams.red.possession}%</div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-[color:var(--team-red)]" style={{ width: "42%" }} />
+          <div className="h-full rounded-full bg-[color:var(--team-red)]" style={{ width: `${teams.red.possession}%` }} />
         </div>
-        <div className="mt-4 text-sm text-muted-foreground">18 possession changes · 168 touches</div>
+        <div className="mt-4 text-sm text-muted-foreground">{totalPossessionEvents} changes · {redTouches} touches</div>
       </div>
       <div className="glass rounded-2xl p-5">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Ball Carrier Timeline</div>
