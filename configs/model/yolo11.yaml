@@ -1,0 +1,26 @@
+# YOLO11 Configuration
+type: "yolo"
+name: "yolo11"
+weights_path: "yolo11n.pt" # Default to nano for initialization
+
+classes:
+  0: "player"
+  1: "goalkeeper"
+  2: "referee"
+  3: "ball"
+
+inference:
+  img_size: 640
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  max_det: 300
+  half: false
+  device: "cuda:0" # Change to "cpu" if no GPU
+
+training:
+  epochs: 100
+  batch_size: 16
+  img_size: 640
+  optimizer: "auto"
+  lr0: 0.01
+  patience: 20

@@ -1,0 +1,29 @@
+# Pitch Mapping Configuration
+type: "mapping"
+name: "pitch"
+
+params:
+  # Official dimensions in meters (scaled x10 for rendering: 1050x680 pixels)
+  pitch_length: 105.0
+  pitch_width: 68.0
+  
+  # Rendering Scale
+  scale_factor: 10.0
+  
+  # Tactical zones (thirds of 105m)
+  # Defensive: 0 - 35m
+  # Middle: 35 - 70m
+  # Attacking: 70 - 105m
+  thirds:
+    defensive: 35.0
+    middle: 70.0
+    attacking: 105.0
+    
+  # Vertical channels (thirds of 68m)
+  # Left: 0 - 22.6m
+  # Center: 22.6 - 45.3m
+  # Right: 45.3 - 68m
+  channels:
+    left: 22.6
+    center: 45.3
+    right: 68.0

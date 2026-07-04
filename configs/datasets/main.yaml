@@ -1,0 +1,43 @@
+# Dataset Registration and Validation Config
+
+football_players_detection:
+  path: "${paths.data_dir}/kaggle/football-player-detection-yolov8/football_players_detection/football_players_detection"
+  format: "yolo"
+  classes: ["ball", "player", "referee", "goalkeeper"]
+  validate: true
+
+soccer_pitch_keypoints:
+  path: "${paths.data_dir}/roboflow/football_field_segmentation-1"
+  format: "yolo"
+  classes: ["keypoints", "pitch"]
+  validate: true
+
+statsbomb_open_data:
+  path: "${paths.data_dir}/statsbomb"
+  format: "json_events"
+  validate: true
+
+soccernet_tracking:
+  path: "${paths.data_dir}/soccernet/tracking"
+  format: "soccernet_tracking"
+  validate: true
+
+soccernet_jersey_number:
+  path: "${paths.data_dir}/soccernet/jersey-2023"
+  format: "soccernet_jersey"
+  validate: true
+
+soccernet_reid:
+  path: "${paths.data_dir}/soccernet/reid"
+  format: "soccernet_reid"
+  validate: true
+
+soccernet_gsr:
+  path: "${paths.data_dir}/soccernet/calibration-2023"
+  format: "soccernet_gsr"
+  validate: true
+
+dfl_bundesliga:
+  path: "${paths.data_dir}/kaggle/dfl-bundesliga-data-shootout"
+  format: "video_clips"
+  validate: true

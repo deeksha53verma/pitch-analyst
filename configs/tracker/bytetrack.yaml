@@ -1,0 +1,10 @@
+# ByteTrack Configuration
+type: "bytetrack"
+name: "bytetrack"
+
+params:
+  track_thresh: 0.25      # Threshold for initial detection matching
+  track_buffer: 30        # Frames to keep lost tracks alive
+  match_thresh: 0.8       # IoU threshold for matching
+  smoothing_factor: 0.8   # EMA smoothing factor (0.0 = raw, 1.0 = frozen)
+  min_hits: 3             # Minimum consecutive frames to confirm a track

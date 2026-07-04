@@ -1,0 +1,13 @@
+# Jersey OCR Configuration
+type: "ocr"
+name: "jersey_ocr"
+
+params:
+  languages: ["en"]
+  use_gpu: true
+  confidence_threshold: 0.3
+  temporal_window: 30       # Store up to 30 frames for voting
+  
+  # Ratios to crop the player bounding box (top Y, bottom Y)
+  # [0.15, 0.60] means cut the top 15% (head) and bottom 40% (legs)
+  torso_crop_ratio: [0.15, 0.60]

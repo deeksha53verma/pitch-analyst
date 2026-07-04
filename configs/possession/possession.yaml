@@ -1,0 +1,11 @@
+# Ball Possession Engine Configuration
+type: "possession"
+name: "possession"
+
+params:
+  # Max Euclidean distance (in pixels) for a player to be "in possession" of the ball
+  max_possession_distance: 100.0
+  
+  # How many consecutive frames a team must be closest to the ball to trigger a formal possession switch
+  # (Filters out 1-frame deflections and loose ball scrambles)
+  temporal_window: 5

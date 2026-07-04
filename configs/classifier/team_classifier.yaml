@@ -1,0 +1,13 @@
+# Team Classifier Configuration
+type: "classifier"
+name: "team_classifier"
+
+params:
+  kmeans_k: 2             # We expect 2 teams
+  temporal_window: 5      # Frames to maintain smoothing
+  confidence_threshold: 0.6
+  
+  # HSV bounds to completely exclude pitch (grass)
+  pitch_green_hsv:
+    lower: [35, 40, 40]
+    upper: [85, 255, 255]
