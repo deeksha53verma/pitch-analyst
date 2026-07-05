@@ -32,7 +32,7 @@ class PipelineRunner:
         self.compactness = CompactnessEngine()
         self.positional = PositionalEngine(pitch_cfg)
         self.counterattack = CounterattackEngine(speed_threshold=5.0)
-        self.state_engine = PossessionStateEngine()
+        self.state_engine = PossessionStateEngine(possession_radius=20.0)
         self.predictive = PredictiveEngine()
 
     def run(self, video_path, out_dir="outputs/dashboard"):
@@ -51,7 +51,7 @@ class PipelineRunner:
         self.compactness = CompactnessEngine()
         self.positional = PositionalEngine(pitch_cfg)
         self.counterattack = CounterattackEngine(speed_threshold=5.0)
-        self.state_engine = PossessionStateEngine()
+        self.state_engine = PossessionStateEngine(possession_radius=20.0)
         self.predictive = PredictiveEngine()
         
         logger.info(f"Initializing YOLO with best.pt weights...")
@@ -73,10 +73,10 @@ class PipelineRunner:
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         
-        # Scale down 4K to 1080p to prevent OpenCV Writer crashes and VRAM OOM
-        if width > 1920:
-            scale = 1920 / width
-            width = 1920
+        # Scale down to 720p (1280) to significantly speed up processing and prevent OOM
+        if width > 1280:
+            scale = 1280 / width
+            width = 1280
             height = int(height * scale)
         
         # Output writers
@@ -105,11 +105,11 @@ class PipelineRunner:
                 
             frame_idx += 1
             # Resize frame if it was scaled down
-            if frame.shape[1] > 1920:
+            if frame.shape[1] > 1280:
                 frame = cv2.resize(frame, (width, height))
                 
-            # Run YOLO Tracking (lowered conf for amateur wide-angle footage)
-            results = model.track(frame, persist=True, verbose=False, conf=0.15)
+            # Run YOLO Tracking with ByteTrack (conf=0.10 to ensure ball is detected)
+            results = model.track(frame, persist=True, tracker="bytetrack.yaml", verbose=False, conf=0.10)
             
             # Extract player coordinates
             team_0_points = []
@@ -155,7 +155,10 @@ class PipelineRunner:
                         px = (cx / width) * 105.0
                         py = (cy / height) * 68.0
                         
-                        if class_id in [0, 1]: # Player or Goalkeeper
+                        if class_id in [1, 3]: # Player or Goalkeeper
+                            # Manually filter low-confidence players to avoid crowd noise, while keeping the ball
+                            if conf < 0.40:
+                                continue
                             team_id = box_id % 2 
                             if team_id == 0:
                                 team_0_points.append([cx, cy])
@@ -166,7 +169,7 @@ class PipelineRunner:
                             players_pitch.append((px, py, team_id))
                             self.positional.update(box_id, team_id, px, py)
                             
-                        elif class_id == 3: # Ball
+                        elif class_id == 0: # Ball
                             if conf > best_ball_conf:
                                 best_ball_conf = conf
                                 best_ball = (px, py)
@@ -183,17 +186,12 @@ class PipelineRunner:
                             self.ball_py_ema = alpha * py + (1 - alpha) * self.ball_py_ema
                         
                         ball_pitch = (self.ball_px_ema, self.ball_py_ema)
-                    elif hasattr(self, 'ball_px_ema') and self.ball_px_ema is not None:
-                        ball_pitch = (self.ball_px_ema, self.ball_py_ema)
                     else:
-                        # Fallback: estimate ball position as the centroid of players
-                        all_pts = team_0_points + team_1_points
-                        if len(all_pts) > 0:
-                            cx = sum(p[0] for p in all_pts) / len(all_pts)
-                            cy = sum(p[1] for p in all_pts) / len(all_pts)
-                            px = (cx / width) * 105.0
-                            py = (cy / height) * 68.0
-                            ball_pitch = (px, py)
+                        # If YOLO loses the ball, do not hallucinate its position
+                        # This prevents players from accruing infinite ghost touches when the ball leaves the frame
+                        ball_pitch = None
+                        self.ball_px_ema = None
+                        self.ball_py_ema = None
                             
                 # Determine Possession for BuildUp
                 if ball_pitch:
@@ -253,8 +251,8 @@ class PipelineRunner:
             ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
             
             logger.info("Transcoding to H.264 for browser compatibility...")
-            r1 = subprocess.run([ffmpeg_exe, "-i", out_video_path, "-vcodec", "libx264", "-pix_fmt", "yuv420p", "-movflags", "faststart", "-y", h264_out], capture_output=True, text=True)
-            r2 = subprocess.run([ffmpeg_exe, "-i", minimap_path, "-vcodec", "libx264", "-pix_fmt", "yuv420p", "-movflags", "faststart", "-y", h264_mini], capture_output=True, text=True)
+            r1 = subprocess.run([ffmpeg_exe, "-i", out_video_path, "-vcodec", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-movflags", "faststart", "-y", h264_out], capture_output=True, text=True)
+            r2 = subprocess.run([ffmpeg_exe, "-i", minimap_path, "-vcodec", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-movflags", "faststart", "-y", h264_mini], capture_output=True, text=True)
             
             if r1.returncode == 0 and r2.returncode == 0:
                 logger.info("H.264 transcode successful!")

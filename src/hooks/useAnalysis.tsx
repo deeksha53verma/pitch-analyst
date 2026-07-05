@@ -11,6 +11,7 @@ export interface AnalysisData {
   compactnessSeries: typeof mock.compactnessSeries;
   players: typeof mock.players;
   counterattacks: typeof mock.counterattacks;
+  predictive: typeof mock.predictive;
   feed: typeof mock.feed;
 }
 
@@ -39,6 +40,7 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
     compactnessSeries: mock.compactnessSeries,
     players: mock.players,
     counterattacks: mock.counterattacks,
+    predictive: mock.predictive,
     feed: mock.feed,
   });
 
@@ -57,6 +59,7 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
       compactnessSeries: mock.compactnessSeries,
       players: mock.players,
       counterattacks: mock.counterattacks,
+      predictive: mock.predictive,
       feed: mock.feed,
     });
     setVideoUrls(null);
@@ -77,15 +80,17 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
 
     // 1. Possession ratios and teams
     const states = results.possession_states || [];
-    const team0Count = states.filter((s: any) => s.team === 0 && s.state !== "Free").length;
-    const team1Count = states.filter((s: any) => s.team === 1 && s.state !== "Free").length;
+    // Only count periodic states (every 15 frames) to accurately measure time, ignoring event-driven duplicates
+    const periodicStates = states.filter((s: any) => s.frame % 15 === 0);
+    const team0Count = periodicStates.filter((s: any) => s.team === 0 && s.state !== "Free").length;
+    const team1Count = periodicStates.filter((s: any) => s.team === 1 && s.state !== "Free").length;
     const total = team0Count + team1Count;
     const bluePoss = total > 0 ? Math.round((team0Count / total) * 100) : 50;
     const redPoss = 100 - bluePoss;
 
     const newTeams = {
-      blue: { name: "Team Blue", color: "team-blue" as const, possession: bluePoss },
-      red: { name: "Team Red", color: "team-red" as const, possession: redPoss },
+      blue: { name: "Team Blue", color: "team-blue" as const, possession: bluePoss, touches: team0Count },
+      red: { name: "Team Red", color: "team-red" as const, possession: redPoss, touches: team1Count },
     };
 
     const newPossEvents = states
@@ -149,18 +154,46 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
     const avgBlueDepth = blueComps.length > 0 ? blueComps.reduce((acc: number, c: any) => acc + c.depth, 0) / blueComps.length : 25;
     const avgRedDepth = redComps.length > 0 ? redComps.reduce((acc: number, c: any) => acc + c.depth, 0) / redComps.length : 28;
 
+    const getPts = (tid: number) => results.positional ? Object.values(results.positional).filter((p:any) => p.team === tid).map((p:any) => [Math.round((p.avg_y / 68.0) * 100), Math.round((p.avg_x / 105.0) * 100)]) : [];
+    const bluePts = getPts(0);
+    const redPts = getPts(1);
+
+    const getHull = (points: number[][]) => {
+      if (points.length < 3) return points.map(p => p.join(",")).join(" ");
+      const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+      const cross = (o: number[], a: number[], b: number[]) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+      const lower = [];
+      for (let p of sorted) {
+          while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
+          lower.push(p);
+      }
+      const upper = [];
+      for (let i = sorted.length - 1; i >= 0; i--) {
+          const p = sorted[i];
+          while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+          upper.push(p);
+      }
+      upper.pop();
+      lower.pop();
+      return lower.concat(upper).map(p => p.join(",")).join(" ");
+    };
+
     const newCompactness = {
       blue: {
         compactness: Math.round(Math.max(10, 100 - avgBlueSpread * 2.5)),
         width: Math.round(avgBlueWidth),
         depth: Math.round(avgBlueDepth),
         spread: Math.round(avgBlueSpread),
+        points: bluePts,
+        hullPoints: getHull(bluePts)
       },
       red: {
         compactness: Math.round(Math.max(10, 100 - avgRedSpread * 2.5)),
         width: Math.round(avgRedWidth),
         depth: Math.round(avgRedDepth),
         spread: Math.round(avgRedSpread),
+        points: redPts,
+        hullPoints: getHull(redPts)
       },
     };
 
@@ -182,7 +215,7 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
       team: pdata.team === 0 ? "Team Blue" : "Team Red",
       role: pdata.role,
       zone: pdata.avg_x < 35 ? "Defensive Third" : pdata.avg_x > 70 ? "Attacking Third" : "Middle Third",
-      touches: states.filter((s: any) => s.player === parseInt(num)).length,
+      touches: Math.round(periodicStates.filter((s: any) => s.player === parseInt(num) && s.state !== "Free").length / 2),
       avgPos: `${Math.round(pdata.avg_x)}, ${Math.round(pdata.avg_y)}`
     })) : [];
 
@@ -271,6 +304,7 @@ export function AnalysisProvider({ children }: { children: React.ReactNode }) {
       compactnessSeries: newCompactnessSeries,
       players: newPlayers,
       counterattacks: newCounterattacks,
+      predictive: results.predictive || [],
       feed: newFeed.length > 0 ? newFeed.slice(0, 10) : mock.feed,
     });
   };

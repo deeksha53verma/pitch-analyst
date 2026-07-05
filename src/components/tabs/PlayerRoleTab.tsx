@@ -78,7 +78,7 @@ export function PlayerRoleTab() {
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
                 <TableHead>Player</TableHead><TableHead>Team</TableHead><TableHead>Role</TableHead>
-                <TableHead>Zone</TableHead><TableHead className="text-right">Touches</TableHead><TableHead>Avg Pos</TableHead>
+                <TableHead>Zone</TableHead><TableHead className="text-right">Possession (s)</TableHead><TableHead>Avg Pos</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -96,7 +96,7 @@ export function PlayerRoleTab() {
                   </TableCell>
                   <TableCell>{p.role}</TableCell>
                   <TableCell className="text-muted-foreground">{p.zone}</TableCell>
-                  <TableCell className="text-right font-mono">{p.touches}</TableCell>
+                  <TableCell className="text-right font-mono">{p.touches}s</TableCell>
                   <TableCell className="font-mono text-muted-foreground">{p.avgPos}</TableCell>
                 </TableRow>
               ))}

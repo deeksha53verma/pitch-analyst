@@ -30,7 +30,13 @@ class PositionalEngine:
         
     def export(self, out_dir: str):
         reports = {}
-        for p_id, data in self.player_positions.items():
+        # Sort players by number of tracked frames (descending) to find the true core players
+        sorted_players = sorted(self.player_positions.items(), key=lambda item: len(item[1]["x"]), reverse=True)
+        
+        # Cap at 22 players max (11 per team) to eliminate any remaining mid-length ghost tracks
+        for p_id, data in sorted_players[:22]:
+            if len(data["x"]) < 15: # Filter out short transient ID switches
+                continue
             avg_x = float(np.mean(data["x"]))
             avg_y = float(np.mean(data["y"]))
             reports[p_id] = {

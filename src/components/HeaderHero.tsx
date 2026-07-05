@@ -6,11 +6,12 @@ interface Props {
   onUpload: () => void;
   onDemo: () => void;
   onRun: () => void;
+  onReset?: () => void;
   analyzed: boolean;
   analyzing?: boolean;
 }
 
-export function HeaderHero({ onUpload, onDemo, onRun, analyzed, analyzing }: Props) {
+export function HeaderHero({ onUpload, onDemo, onRun, onReset, analyzed, analyzing }: Props) {
   return (
     <header className="relative overflow-hidden border-b border-border">
       <div className="absolute inset-0 pitch-bg opacity-[0.08]" aria-hidden />
@@ -58,6 +59,9 @@ export function HeaderHero({ onUpload, onDemo, onRun, analyzed, analyzing }: Pro
               )}
               {analyzed && (
                 <>
+                  <Button size="sm" onClick={onReset} className="gap-2 text-xs bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Upload className="h-4 w-4" /> Analyze New Video
+                  </Button>
                   <Button size="sm" variant="secondary" className="gap-2 text-xs">
                     Download Annotated Video
                   </Button>

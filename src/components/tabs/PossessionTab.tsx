@@ -8,8 +8,10 @@ export function PossessionTab() {
   const { teams, possessionTimeline, possessionEvents } = data;
 
   const totalPossessionEvents = possessionEvents.length;
-  const blueTouches = possessionTimeline.reduce((acc, t) => acc + (t.blue > 0 ? 5 : 0), 0) + possessionEvents.filter(e => e.team.includes("Blue")).length * 3;
-  const redTouches = possessionTimeline.reduce((acc, t) => acc + (t.red > 0 ? 5 : 0), 0) + possessionEvents.filter(e => e.team.includes("Red")).length * 3;
+  // The backend records states every 15 frames (0.5 seconds at 30fps)
+  // Converting the state count to seconds of possession eliminates the 'ghost touches' confusion
+  const blueSeconds = Math.round(((teams.blue as any).touches || 0) / 2);
+  const redSeconds = Math.round(((teams.red as any).touches || 0) / 2);
 
   return (
     <div className="grid gap-5 lg:grid-cols-3">
@@ -19,7 +21,7 @@ export function PossessionTab() {
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
           <div className="h-full rounded-full bg-[color:var(--team-blue)]" style={{ width: `${teams.blue.possession}%` }} />
         </div>
-        <div className="mt-4 text-sm text-muted-foreground">{totalPossessionEvents} changes · {blueTouches} touches</div>
+        <div className="mt-4 text-sm text-muted-foreground">{totalPossessionEvents} changes · {blueSeconds}s possession</div>
       </div>
       <div className="glass rounded-2xl p-5">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Team Red Possession</div>
@@ -27,7 +29,7 @@ export function PossessionTab() {
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
           <div className="h-full rounded-full bg-[color:var(--team-red)]" style={{ width: `${teams.red.possession}%` }} />
         </div>
-        <div className="mt-4 text-sm text-muted-foreground">{totalPossessionEvents} changes · {redTouches} touches</div>
+        <div className="mt-4 text-sm text-muted-foreground">{totalPossessionEvents} changes · {redSeconds}s possession</div>
       </div>
       <div className="glass rounded-2xl p-5">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Ball Carrier Timeline</div>

@@ -13,4 +13,9 @@ export default defineConfig({
     }),
     react(),
   ],
+  server: {
+    watch: {
+      ignored: ['**/frontend/**', '**/outputs/**', '**/runs/**', '**/data/**', '**/__pycache__/**', '**/.venv/**']
+    }
+  }
 });

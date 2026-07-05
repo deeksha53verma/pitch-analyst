@@ -9,12 +9,12 @@ function TeamCard({ team, data, color }: { team: string; data: { compactness: nu
     { label: "Spread", value: data.spread },
   ];
   
-  // Create a polygon based on mock formation points
-  const points = team.includes("Blue") ? 
+  // Use actual player positions if available, otherwise fallback to mock formation points
+  const points: number[][] = (data as any).points && (data as any).points.length > 0 ? (data as any).points : (team.includes("Blue") ? 
     [[50, 90], [20, 70], [40, 70], [60, 70], [80, 70], [30, 45], [50, 45], [70, 45], [35, 22], [65, 22], [50, 10]] :
-    [[50, 10], [20, 30], [40, 30], [60, 30], [80, 30], [30, 55], [50, 55], [70, 55], [35, 78], [65, 78], [50, 90]];
+    [[50, 10], [20, 30], [40, 30], [60, 30], [80, 30], [30, 55], [50, 55], [70, 55], [35, 78], [65, 78], [50, 90]]);
   
-  const hullPoints = team.includes("Blue") ? "20,70 35,22 50,10 65,22 80,70 50,90" : "20,30 35,78 50,90 65,78 80,30 50,10";
+  const hullPoints: string = (data as any).hullPoints || (team.includes("Blue") ? "20,70 35,22 50,10 65,22 80,70 50,90" : "20,30 35,78 50,90 65,78 80,30 50,10");
 
   return (
     <div className="glass rounded-2xl p-5 flex flex-col h-full">

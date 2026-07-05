@@ -1,16 +1,21 @@
 import { analysisSteps } from "@/data/mockData";
 import { Loader2, CheckCircle2, Circle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Progress } from "@/components/ui/progress";
 
 export function LoadingAnalysisState({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState(0);
+  const hasCalledDone = useRef(false);
+
   useEffect(() => {
     const id = setInterval(() => {
       setStep((s) => {
         if (s >= analysisSteps.length - 1) {
           clearInterval(id);
-          setTimeout(onDone, 700);
+          if (!hasCalledDone.current) {
+            hasCalledDone.current = true;
+            setTimeout(onDone, 700);
+          }
           return s;
         }
         return s + 1;

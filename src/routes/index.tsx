@@ -60,6 +60,14 @@ function Dashboard() {
     toast.success(`Video file selected: ${file.name}`);
   };
 
+  const handleReset = () => {
+    resetData();
+    setSelectedFile(null);
+    setFileName(null);
+    setAnalyzed(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleRun = () => {
     if (!selectedFile && !fileName) {
       setFileName("demo_match_liverpool_vs_arsenal.mp4");
@@ -96,7 +104,7 @@ function Dashboard() {
 
   return (
     <main className="min-h-screen">
-      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} analyzed={analyzed} analyzing={analyzing} />
+      <HeaderHero onUpload={handleUpload} onDemo={handleDemo} onRun={handleRun} onReset={handleReset} analyzed={analyzed} analyzing={analyzing} />
 
       <div id="video-section">
         <VideoComparisonSection fileName={fileName} onFile={handleFileSelect} />
